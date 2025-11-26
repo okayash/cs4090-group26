@@ -9,7 +9,21 @@ except Exception:
 	try:
 		from data_access import delete_user as db_delete_user
 	except Exception:
-		db_delete_user = None
+		db_delete_user = None	
+try:
+    from .data_access import get_attraction_details as db_get_attraction_details
+except ImportError:
+    from data_access import get_attraction_details as db_get_attraction_details
+
+try:
+    from .data_access import list_attractions as db_list_attractions
+except ImportError:
+    from data_access import list_attractions as db_list_attractions
+
+try:
+    from .data_access import update_user_interests as db_update_user_interests
+except ImportError:
+    from data_access import update_user_interests as db_update_user_interests
 
 
 def create_user(payload) -> dict:
@@ -60,3 +74,58 @@ def delete_user(payload) -> dict:
 		return {"success": True, "result": result, "error": None}
 	except Exception as e:
 		return {"success": False, "error": str(e)}
+	
+def get_attraction_details(payload) -> dict:
+    '''
+    get attraction details - use case 1
+    '''
+    if not payload:
+        return {"success": False, "attraction": None, "error": "error"}
+    
+    attraction_id = payload.get("attraction_id")
+    if not attraction_id:
+        return {"success": False, "attraction": None, "error": "Please provide an attraction ID."}
+    
+    try:
+        attraction = db_get_attraction_details({"attraction_id": attraction_id})
+        if not attraction:
+            return {"success": False, "attraction": None, "error": "Attraction not found"}
+        return {"success": True, "attraction": attraction, "error": None}
+    except Exception as e:
+        return {"success": False, "attraction": None, "error": str(e)}
+
+
+def list_attractions(payload) -> dict:
+    '''
+    list attractions - use case 3
+    '''
+    city = payload.get("city") if payload else None
+    
+    try:
+        attractions = db_list_attractions({"city": city})
+        return {"success": True, "attractions": attractions, "error": None}
+    except Exception as e:
+        return {"success": False, "attractions": [], "error": str(e)}
+
+
+def update_user_interests(payload) -> dict:
+    '''
+    update user interests - use case 4
+    '''
+    if not payload:
+        return {"success": False, "result": None, "error": "error"}
+    
+    username = payload.get("username")
+    interests = payload.get("interests")
+    
+    if not username:
+        return {"success": False, "result": None, "error": "Please provide a username."}
+    
+    if not interests or not isinstance(interests, list):
+        return {"success": False, "result": None, "error": "Please provide a list of interests."}
+    
+    try:
+        result = db_update_user_interests({"username": username, "interests": interests})
+        return {"success": True, "result": result, "error": None}
+    except Exception as e:
+        return {"success": False, "result": None, "error": str(e)}
