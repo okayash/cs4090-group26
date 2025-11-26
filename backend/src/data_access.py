@@ -42,10 +42,7 @@ def create_user(data) -> str:
 		conn.commit()
 		return username
 	finally:
-		try:
-			cur.close()
-		except Exception:
-			pass
+		cur.close()
 		conn.close()
 
 
@@ -68,8 +65,102 @@ def delete_user(payload) -> dict:
 		conn.commit()
 		return {"deleted": cur.rowcount}
 	finally:
-		try:
-			cur.close()
-		except Exception:
-			pass
+		cur.close()
+		conn.close()
+
+		
+def get_attraction_details(payload) -> dict:
+	'''
+	get attraction details - use case 1
+	'''
+	attraction_id = payload.get("attraction_id")
+	if not attraction_id:
+		raise ValueError("Please provide an attraction ID.")
+
+	sql = "SELECT id, name, type, city, tags, price, rating FROM Attractions WHERE id = %s"
+	params = (attraction_id,)
+
+	conn = _get_conn()
+	try:
+		cur = conn.cursor()
+		cur.execute(sql, params)
+		result = cur.fetchone()
+		if result:
+			(id, name, type, city, tags, price, rating) = result
+			attraction = {
+				"id": id,
+				"name": name,
+				"type": type,
+				"city": city,
+				"tags": tags,
+				"price": price,
+				"rating": rating
+			}
+			return attraction
+		else:
+			return {}
+	finally:
+		cur.close()
+		conn.close()
+
+
+def list_attractions(payload) -> list:
+	'''
+	list attractions - use case 3
+	'''
+	city = payload.get("city")
+
+	sql = "SELECT id, name, type, city, tags, price, rating FROM Attractions"
+	params = ()
+
+	if city:
+		sql += " WHERE city = %s"
+		params = (city,)
+
+	conn = _get_conn()
+	try:
+		cur = conn.cursor()
+		cur.execute(sql, params)
+		results = []
+		for (id, name, type, city, tags, price, rating) in cur:
+			attraction = {
+				"id": id,
+				"name": name,
+				"type": type,
+				"city": city,
+				"tags": tags,
+				"price": price,
+				"rating": rating
+			}
+			results.append(attraction)
+		return results
+	finally:
+		cur.close()
+		conn.close()
+
+		
+def update_user_interests(payload) -> dict:
+	'''
+	update user interests - use case 4
+	'''
+	username = payload.get("username")
+	interests = payload.get("interests")
+	if not username:
+		raise ValueError("Please provide a username.")
+	if not interests or not isinstance(interests, list):
+		raise ValueError("Please provide a list of interests.")
+
+	sql_delete = "DELETE FROM User_Interests_Map WHERE username = %s"
+	sql_insert = "INSERT INTO User_Interests_Map (username, interest_id) VALUES (%s, %s)"
+	
+	conn = _get_conn()
+	try:
+		cur = conn.cursor()
+		cur.execute(sql_delete, (username,))
+		for interest in interests:
+			cur.execute(sql_insert, (username, interest))
+		conn.commit()
+		return {"updated": len(interests)}
+	finally:
+		cur.close()
 		conn.close()
