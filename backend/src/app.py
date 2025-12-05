@@ -13,7 +13,7 @@ def validate_user(username):
         cur.close()
         conn.close()
 
-st.title("Museum Recommender Login")
+st.title("ClIO Login")
 
 username = st.text_input("Username: ")
 
