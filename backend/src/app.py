@@ -17,10 +17,10 @@ def validate_user(username, password) -> bool:
 st.title("ClIO Login")
 
 username = st.text_input("Username: ")
-pwd = st.text_input("Password: ", type="password")
+password = st.text_input("Password: ", type="password")
 
 if st.button("Login"):
-    if validate_user(username, pwd):
+    if validate_user(username, password):
         st.success("Login successful!")
         st.session_state["user"] = username
     else:

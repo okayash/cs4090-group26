@@ -1,40 +1,56 @@
 import os
 import mysql.connector
 
-
 def _get_conn():
 	'''
 	get conn change details
 	need to fr connect to mysql 
 	'''
+
 	return mysql.connector.connect(
-		host=os.getenv("DB_HOST", "127.0.0.1"),
-		user=os.getenv("DB_USER", "root"),
-		password=os.getenv("DB_PASSWORD", ""),
-		database=os.getenv("DB_NAME", "test"),
+        host=os.getenv("DB_HOST", "127.0.0.1"),
+        user=os.getenv("DB_USER", "root"),
+        password=os.getenv("DB_PASSWORD", ""),
+        database=os.getenv("DB_NAME", "CLIO"),
 	)
+
+def validate_user_credentials(username: str, password: str) -> bool:
+	'''
+	
+	'''
+	conn = _get_conn()
+	try:
+		cur = conn.cursor()
+		sql = "SELECT username FROM User WHERE username = %s AND password = %s"
+		cur.execute(sql, (username, password))
+		return cur.fetchone() is not None
+	finally:
+		cur.close()
+		conn.close()
 
 
 def create_user(data) -> str:
 	'''
 	create user - use case 4
+
 	'''
 	username = data.get("username")
 	if not username:
 		raise ValueError("Please input a username.")
 
 	sql = (
-		"INSERT INTO User (username, first_name, last_name, email, age, home_city) "
-		"VALUES (%s, %s, %s, %s, %s, %s)"
-	)
+		"INSERT INTO User (username, first_name, last_name, email, age, home_city, password) "
+		"VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    )
 	params = (
 		username,
 		data.get("first_name"),
 		data.get("last_name"),
-		data.get("email"),
-		data.get("age"),
-		data.get("home_city"),
-	)
+        data.get("email"),
+        data.get("age"),
+        data.get("home_city"),
+        data.get("password"),   # 👈 NEW
+    )
 
 	conn = _get_conn()
 	try:
