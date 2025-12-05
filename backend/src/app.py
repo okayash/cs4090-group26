@@ -1,6 +1,7 @@
 import streamlit as st
 import os
-from data_access import create_user, delete_user, get_attraction_details, list_attractions, update_user_interests, _get_conn
+from classes import UserServices
+from data_access import _get_conn
 
 def validate_user(username):
     conn = _get_conn()

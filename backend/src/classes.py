@@ -1,3 +1,4 @@
+from data_access import create_user, delete_user, get_attraction_details, list_attractions, update_user_interests
 
 class User:
 
@@ -58,20 +59,30 @@ class RecommendationResult:
         self.user_id = user_id
         self.attractions = attractions or []
 
-# Services
+# Services ( delete this later)
 
 class UserServices:
     def CreateUser():
-        #...
+        create_user()
         print('Account Successfully Created!')
+    
+    def DeleteUser():
+        delete_user()
+        print("Account Deleted!")
 
     def UpdateUser():
-        #...
+        
         print("Account Details Updated Successfully!")
+    
+    def AddUserInterests():
+        update_user_interests()
+        print("Interests Added")
 
 class AttractionServices:
     def SearchAttractions():
         # ...
+        # searching logic here
+        list_attractions()
         print("Done.")
 
     def RecommendationService():
