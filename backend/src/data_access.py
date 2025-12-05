@@ -5,6 +5,7 @@ import mysql.connector
 def _get_conn():
 	'''
 	get conn change details
+	need to fr connect to mysql 
 	'''
 	return mysql.connector.connect(
 		host=os.getenv("DB_HOST", "127.0.0.1"),

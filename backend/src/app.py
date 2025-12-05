@@ -1,9 +1,9 @@
 import streamlit as st
 import os
-from data_access import create_user, delete_user, get_attraction_details, list_attractions, update_user_interests, get_conn
+from data_access import create_user, delete_user, get_attraction_details, list_attractions, update_user_interests, _get_conn
 
 def validate_user(username):
-    conn = get_conn()
+    conn = _get_conn()
     try:
         cur = conn.cursor()
         cur.execute("SELECT username FROM User WHERE username = %s", (username,))
