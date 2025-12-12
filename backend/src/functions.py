@@ -1,3 +1,6 @@
+from search import recommend
+
+
 try:
 	from .data_access import create_user as db_create_user
 except ImportError:
@@ -129,3 +132,45 @@ def update_user_interests(payload) -> dict:
         return {"success": True, "result": result, "error": None}
     except Exception as e:
         return {"success": False, "result": None, "error": str(e)}
+    
+try:
+    from .data_access import get_user_interest_names as db_get_user_interest_names
+    from .data_access import get_attractions_with_tags as db_get_attractions_with_tags
+except ImportError:
+    from data_access import get_user_interest_names as db_get_user_interest_names
+    from data_access import get_attractions_with_tags as db_get_attractions_with_tags
+
+
+def generate_recommendations(payload) -> dict:
+    if not payload:
+        return {"success": False, "recommendations": [], "error": "Missing payload"}
+
+    username = payload.get("username")
+    city = payload.get("city")
+    top_k = payload.get("top_k", 10)
+
+    if not username:
+        return {"success": False, "recommendations": [], "error": "Missing username"}
+
+    try:
+        top_k = int(top_k)
+    except Exception:
+        top_k = 10
+
+    try:
+        interests = db_get_user_interest_names(username)
+        attractions = db_get_attractions_with_tags(city=city)
+
+        recs = recommend(attractions, interests, top_k=top_k)
+
+        if not recs:
+            return {
+                "success": True,
+                "recommendations": [],
+                "error": None,
+                "message": "No matches found. Add more interests or remove filters."
+            }
+
+        return {"success": True, "recommendations": recs, "error": None}
+    except Exception as e:
+        return {"success": False, "recommendations": [], "error": str(e)}

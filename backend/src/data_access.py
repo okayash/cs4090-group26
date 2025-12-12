@@ -49,7 +49,7 @@ def create_user(data) -> str:
         data.get("email"),
         data.get("age"),
         data.get("home_city"),
-        data.get("password"),   # 👈 NEW
+        data.get("password"),   
     )
 
 	conn = _get_conn()
@@ -181,3 +181,61 @@ def update_user_interests(payload) -> dict:
 	finally:
 		cur.close()
 		conn.close()
+
+
+def get_user_interest_names(username: str) -> list[str]:
+    conn = _get_conn()
+    try:
+        cur = conn.cursor()
+        sql = """
+            SELECT i.name
+            FROM User_Interests_Map uim
+            JOIN Interests i ON i.interest_id = uim.interest_id
+            WHERE uim.username = %s
+        """
+        cur.execute(sql, (username,))
+        return [row[0] for row in cur.fetchall()]
+    finally:
+        cur.close()
+        conn.close()
+
+
+def get_attractions_with_tags(city: str | None = None) -> list[dict]:
+    conn = _get_conn()
+    try:
+        cur = conn.cursor()
+        sql = """
+            SELECT 
+                a.name, a.`type`, a.city, a.price, a.rating,
+                GROUP_CONCAT(t.tag_name) AS tags
+            FROM Attractions a
+            LEFT JOIN Attraction_Tags_Map atm ON atm.attraction_name = a.name
+            LEFT JOIN Attraction_Tags t ON t.tag_id = atm.tag_id
+        """
+        params = []
+        if city:
+            sql += " WHERE a.city = %s "
+            params.append(city)
+
+        sql += " GROUP BY a.name, a.`type`, a.city, a.price, a.rating "
+
+        cur.execute(sql, tuple(params))
+        rows = cur.fetchall()
+
+        out = []
+        for (name, typ, city_val, price, rating, tags) in rows:
+            tag_list = []
+            if tags:
+                tag_list = [x.strip().lower() for x in tags.split(",") if x.strip()]
+            out.append({
+                "name": name,
+                "type": typ,
+                "city": city_val,
+                "price": price,
+                "rating": rating,
+                "tags": tag_list
+            })
+        return out
+    finally:
+        cur.close()
+        conn.close()
