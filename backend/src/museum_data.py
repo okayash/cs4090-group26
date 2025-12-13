@@ -1,43 +1,36 @@
 import pandas as pd
+import re
 
 def load_museum_data(file_path: str) -> pd.DataFrame:
-    '''
-    Load museum data from a CSV file into a pandas DataFrame.
-    '''
-    try:
-        df = pd.read_csv(file_path)
-        return df
-    except Exception as e:
-        print(f"Error loading museum data: {e}")
-        return pd.DataFrame()
-    
-def parse_museum_data(df: pd.DataFrame) -> list[dict]:
-    '''
-    Parse the museum DataFrame into a list of dictionaries.
-    '''
-    museums = []
-    for _, row in df.iterrows():
-        museum = {
-            "id": row.get("id"),
-            "name": row.get("name"),
-            "description": row.get("description"),
-            "location": row.get("location"),
-            "type": row.get("type"),
-            "rating": row.get("rating"),
-            "tags": row.get("tags", "").split(",") if pd.notna(row.get("tags")) else [],
-        }
-        museums.append(museum)
-    return museums
-    
-def tag_museums():
-    '''
-    tag museums with certain interest categories based on their names or descriptions
-    '''
-    tags = {
-        "art": ["painting", "sculpture", "gallery", "arts", "art"],
-        "history": ["ancient", "medieval", "modern", "war", "history", "memorial", "culture", "cultural", "american", "heritage"],
-        "science": ["technology", "natural history", "space", "air", "space", "science", "innovation"],
-        "child-friendly": ["children", "kids", "family", "zoo", "interactive"],
-        "natural": ["zoo", "plants", "trail"],
+    return pd.read_csv(file_path)
+
+def get_tag_rules() -> dict[str, list[str]]:
+    # keep tags short + SQL-friendly
+    return {
+        "art": ["painting", "sculpture", "gallery", "art", "arts"],
+        "history": ["history", "historic", "heritage", "memorial", "war", "ancient", "museum of the city"],
+        "science": ["science", "technology", "innovation", "space", "planetarium", "natural history"],
+        "kids": ["children", "kids", "family", "interactive", "hands-on"],
+        "nature": ["zoo", "botanical", "garden", "park", "aquarium", "wildlife", "natural"],
+        "architecture": ["architecture", "design"],
+        "music": ["music", "jazz"],
+        "transportation": ["aviation", "air", "rail", "subway", "transit", "maritime", "ship"],
     }
-    return tags
+
+def assign_tags_to_row(text: str, rules: dict[str, list[str]]) -> list[str]:
+    if not isinstance(text, str):
+        text = ""
+    t = text.lower()
+
+    found = []
+    for tag, keywords in rules.items():
+        for kw in keywords:
+            # basic substring match is enough for MVP
+            if kw in t:
+                found.append(tag)
+                break
+
+    # fallback so every attraction has at least one tag
+    if not found:
+        found = ["culture"]
+    return found
