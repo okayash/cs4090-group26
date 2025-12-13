@@ -1,24 +1,12 @@
 import os
-import mysql.connector
+from db import get_conn
 
-def _get_conn():
-	'''
-	get conn change details
-	need to fr connect to mysql 
-	'''
-
-	return mysql.connector.connect(
-        host=os.getenv("DB_HOST", "127.0.0.1"),
-        user=os.getenv("DB_USER", "root"),
-        password=os.getenv("DB_PASSWORD", ""),
-        database=os.getenv("DB_NAME", "CLIO"),
-	)
 
 def validate_user_credentials(username: str, password: str) -> bool:
 	'''
 	
 	'''
-	conn = _get_conn()
+	conn = get_conn()
 	try:
 		cur = conn.cursor()
 		sql = "SELECT username FROM User WHERE username = %s AND password = %s"
@@ -52,7 +40,7 @@ def create_user(data) -> str:
         data.get("password"),   
     )
 
-	conn = _get_conn()
+	conn = get_conn()
 	try:
 		cur = conn.cursor()
 		cur.execute(sql, params)
@@ -75,7 +63,7 @@ def delete_user(payload) -> dict:
 	sql = "DELETE FROM User WHERE username = %s"
 	params = (username,)
 
-	conn = _get_conn()
+	conn = get_conn()
 	try:
 		cur = conn.cursor()
 		cur.execute(sql, params)
@@ -97,7 +85,7 @@ def get_attraction_details(payload) -> dict:
 	sql = "SELECT id, name, type, city, tags, price, rating FROM Attractions WHERE id = %s"
 	params = (attraction_id,)
 
-	conn = _get_conn()
+	conn = get_conn()
 	try:
 		cur = conn.cursor()
 		cur.execute(sql, params)
@@ -134,7 +122,7 @@ def list_attractions(payload) -> list:
 		sql += " WHERE city = %s"
 		params = (city,)
 
-	conn = _get_conn()
+	conn = get_conn()
 	try:
 		cur = conn.cursor()
 		cur.execute(sql, params)
@@ -170,7 +158,7 @@ def update_user_interests(payload) -> dict:
 	sql_delete = "DELETE FROM User_Interests_Map WHERE username = %s"
 	sql_insert = "INSERT INTO User_Interests_Map (username, interest_id) VALUES (%s, %s)"
 	
-	conn = _get_conn()
+	conn = get_conn()
 	try:
 		cur = conn.cursor()
 		cur.execute(sql_delete, (username,))
@@ -184,7 +172,7 @@ def update_user_interests(payload) -> dict:
 
 
 def get_user_interest_names(username: str) -> list[str]:
-    conn = _get_conn()
+    conn = get_conn()
     try:
         cur = conn.cursor()
         sql = """
@@ -201,7 +189,7 @@ def get_user_interest_names(username: str) -> list[str]:
 
 
 def get_attractions_with_tags(city: str | None = None) -> list[dict]:
-    conn = _get_conn()
+    conn = get_conn()
     try:
         cur = conn.cursor()
         sql = """
