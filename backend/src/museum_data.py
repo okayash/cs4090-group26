@@ -2,10 +2,11 @@ import pandas as pd
 import re
 
 def load_museum_data(file_path: str) -> pd.DataFrame:
-    return pd.read_csv(file_path)
+    df = pd.read_csv(file_path)
+    df["state"] = df["address"].str.extract(r",\s*([A-Z]{2})\s*\d{5}")
+    return df
 
 def get_tag_rules() -> dict[str, list[str]]:
-    # keep tags short + SQL-friendly
     return {
         "art": ["painting", "sculpture", "gallery", "art", "arts"],
         "history": ["history", "historic", "heritage", "memorial", "war", "ancient", "museum of the city"],
