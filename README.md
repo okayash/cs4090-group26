@@ -15,4 +15,4 @@ To run in MacOS:
 
 ``streamlit run backend/src/app.py``
 
-(kinda need to update commands)
+- Currently, it only has attraction data for New York City and Washington D.C.
