@@ -1,20 +1,8 @@
-'''
-museum_data.py
-One-time CSV -> MySQL seeding script for Attractions + tag tables.
-
-Run from the folder that contains this file + the CSV:
-    python3 museum_data.py
-
-After running, verify in MySQL:
-    USE clio;
-    SELECT COUNT(*) FROM Attractions;
-'''
-
 import os
 import re
 import pandas as pd
 
-from db import get_conn  
+from .db import get_conn  
 
 def get_tag_rules() -> dict[str, list[str]]:
     return {
@@ -47,9 +35,7 @@ def extract_state(address: str) -> str | None:
 
 def extract_city(address: str) -> str | None:
     '''
-    For addresses like:
-        "555 Pennsylvania Ave NW, Washington DC, DC 20001-2114"
-    city chunk is parts[1] => "Washington DC"
+    Obtain city from the address in the trip advisor dataset.
     '''
     if not isinstance(address, str):
         return None

@@ -1,5 +1,5 @@
 import os
-from db import get_conn
+from .db import get_conn
 
 
 def validate_user_credentials(username: str, password: str) -> bool:
@@ -352,6 +352,30 @@ def save_recommendations(username: str, recommendations: list[dict]) -> dict:
 
         conn.commit()
         return {"saved": saved}
+    finally:
+        cur.close()
+        conn.close()
+def list_saved_recommendations(username: str) -> list[dict]:
+    if not username:
+        return []
+
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        sql = '''
+            SELECT recommendation_id, attraction_name, reason
+            FROM Recommendations
+            WHERE username = %s
+            ORDER BY recommendation_id DESC
+            LIMIT 100
+        '''
+        cur.execute(sql, (username,))
+        rows = cur.fetchall()
+
+        return [
+            {"recommendation_id": r[0], "name": r[1], "reason": r[2]}
+            for r in rows
+        ]
     finally:
         cur.close()
         conn.close()
