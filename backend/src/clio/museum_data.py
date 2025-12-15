@@ -35,7 +35,6 @@ def extract_state(address: str) -> str | None:
 
 def extract_city(address: str) -> str | None:
     '''
-    Obtain city from the address in the trip advisor dataset.
     '''
     if not isinstance(address, str):
         return None
@@ -169,16 +168,8 @@ def seed_from_csv(
 
         if after == 0:
             print(
-                "\nNothing inserted. Most common causes:\n"
-                "- You are connected to a different DB than you think (check DB connected to above)\n"
-                "- The script crashed before commit (but you would have seen a traceback)\n"
-                "- Your CSV columns don't match expected names\n"
+                "\nNothing"
             )
-
-    except Exception:
-        conn.rollback()
-        print("\nSEED FAILED. Rolled back changes.\n")
-        raise
     finally:
         cur.close()
         conn.close()
@@ -190,7 +181,6 @@ def main():
         seed_tags=True,
         limit=None, 
     )
-
 
 if __name__ == "__main__":
     main()

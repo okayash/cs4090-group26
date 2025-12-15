@@ -91,12 +91,12 @@ def main():
                 "password": password, 
             }
 
-            res = create_user(payload)
+            result = create_user(payload)
 
-            if res.get("success"):
+            if result.get("success"):
                 st.success("Account created! You may log in now.")
             else:
-                st.error(res.get("error", "Account creation failed."))
+                st.error(result.get("error", "Account creation failed."))
 
     elif page == "Profile":
         st.header("Profile")
@@ -105,11 +105,11 @@ def main():
 
         st.subheader("Your Interests")
 
-        res = list_interests()
-        if not res.get("success"):
-            st.error(res.get("error", "Failed to load interests."))
+        result = list_interests()
+        if not result.get("success"):
+            st.error(result.get("error", "Failed to load interests."))
         else:
-            all_interests = res["interests"]  
+            all_interests = result["interests"]  
             all_names = [x["name"] for x in all_interests]
             name_to_id = {x["name"]: x["interest_id"] for x in all_interests}
 
@@ -133,10 +133,10 @@ def main():
         city = st.text_input("City Filter (Optional)", key="browse_city")
 
         if st.button("Load Attractions", key="load_attractions_btn"):
-            res = list_attractions({"city": city or None})
+            result = list_attractions({"city": city or None})
 
-            if res.get("success"):
-                data = res.get("attractions", [])
+            if result.get("success"):
+                data = result.get("attractions", [])
 
                 if data:
                     for r in data:
@@ -147,7 +147,7 @@ def main():
                 else:
                     st.info("No attractions found.")
             else:
-                st.error(res.get("error", "Failed to load attractions."))
+                st.error(result.get("error", "Failed to load attractions."))
 
 
     elif page == "Recommendations":
@@ -161,19 +161,19 @@ def main():
         if "last_recs" not in st.session_state:
             st.session_state["last_recs"] = []
         if st.button("Generate", key="generate_recs_btn"):
-            res = generate_recommendations({
+            result = generate_recommendations({
                 "username": username,
                 "city": city or None,
                 "top_k": top_k
             })
 
-            if res.get("success"):
-                st.session_state["last_recs"] = res.get("recommendations", [])
+            if result.get("success"):
+                st.session_state["last_recs"] = result.get("recommendations", [])
                 if not st.session_state["last_recs"]:
-                    st.info(res.get("message", "No matches found."))
+                    st.info(result.get("message", "No matches found."))
             else:
                 st.session_state["last_recs"] = []
-                st.error(res.get("error", "Recommendation generation failed."))
+                st.error(result.get("error", "Recommendation generation failed."))
 
         recs = st.session_state.get("last_recs", [])
         if recs:
