@@ -1,4 +1,3 @@
-
 class User:
 
     '''
@@ -57,28 +56,4 @@ class RecommendationResult:
     def __init__(self, user_id, attractions):
         self.user_id = user_id
         self.attractions = attractions or []
-
-# Services
-
-class UserServices:
-    def CreateUser():
-        #...
-        print('Account Successfully Created!')
-
-    def UpdateUser():
-        #...
-        print("Account Details Updated Successfully!")
-
-class AttractionServices:
-    def SearchAttractions():
-        # ...
-        print("Done.")
-
-    def RecommendationService():
-        # ...
-        print("Done")    
-
-
-    
-
 
