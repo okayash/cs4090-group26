@@ -13,13 +13,21 @@ from clio.functions import (
     save_recommendations
 )
 
+'''
+file for the streamlit app
+'''
+
 def fee_label(v) -> str:
-    try:
-        return "Paid Experience" if float(v or 0) >= 1 else "Free Entry"
-    except Exception:
-        return "Unknown"
+    '''
+    change the 1 or 0 label to "Paid Experience" or "Free Entry" for easier user readibility 
+    '''
+    return "Paid Experience" if float(v or 0) >= 1 else "Free Entry"
+
 
 def main():
+    '''
+    main function for the streamlit pages and behavior
+    '''
     st.set_page_config(page_title="CLIO", layout="wide")
 
     def require_login():
@@ -39,6 +47,10 @@ def main():
     if "page" not in st.session_state:
         st.session_state["page"] = "Login"
 
+
+    '''
+    pg header, using buttons
+    '''
     cols = st.columns(5)
     if cols[0].button("Login", key="login_nav_btn"): st.session_state["page"] = "Login"
     if cols[1].button("Create Account", key="create_nav_btn"): st.session_state["page"] = "Create Account"
@@ -47,7 +59,6 @@ def main():
     if cols[4].button("Recommendations", key="recs_nav_btn"): st.session_state["page"] = "Recommendations"
 
     page = st.session_state["page"]
-
 
     if st.session_state.get("logged_in"):
         st.sidebar.success(f"Logged in as {st.session_state['username']}")

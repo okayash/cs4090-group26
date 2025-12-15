@@ -4,7 +4,7 @@ from .db import get_conn
 
 def validate_user_credentials(username: str, password: str) -> bool:
 	'''
-	
+	validated user credientials by checking if it's in sql
 	'''
 	conn = get_conn()
 	try:
@@ -20,6 +20,7 @@ def validate_user_credentials(username: str, password: str) -> bool:
 def create_user(data) -> str:
 	'''
 	create user - use case 4
+    insert into user sql table whatever the user inputted on the site
 
 	'''
 	username = data.get("username")
@@ -54,6 +55,7 @@ def create_user(data) -> str:
 def delete_user(payload) -> dict:
 	'''
 	delete user - use case 11
+    (not used anywhere yet though........)
 	'''
 	username = payload.get("username")
 
@@ -74,6 +76,10 @@ def delete_user(payload) -> dict:
 		conn.close()
 
 def list_interests() -> list[dict]:
+    '''
+    List all interests from the database
+    return is a dict with interset_id + name
+    '''
     conn = get_conn()
     try:
         cur = conn.cursor()
@@ -85,13 +91,13 @@ def list_interests() -> list[dict]:
 
 def update_user_interests(payload) -> dict:
     '''
-
+    return associated interests of a user
     '''
     username = payload.get("username")
     interests = payload.get("interests")
 
     if not username:
-        raise ValueError("Missing username")
+        raise ValueError("Please provide a username")
     if not isinstance(interests, list):
         raise ValueError("Interests must be a list of interest_ids")
 
@@ -115,7 +121,7 @@ def update_user_interests(payload) -> dict:
 
 def get_user_interest_names(username: str) -> list[str]:
     '''
-
+    return the names of interests associated with a user.
     '''
     if not username:
         return []
@@ -138,6 +144,9 @@ def get_user_interest_names(username: str) -> list[str]:
           
 		
 def get_attraction_details(payload) -> dict:
+    '''
+    get the attraction detailss through name
+    '''
     attraction_name = payload.get("name")
     if not attraction_name:
         raise ValueError("Please provide an attraction name.")
@@ -174,6 +183,9 @@ def get_attraction_details(payload) -> dict:
         conn.close()
 
 def list_cities() -> list[str]:
+    '''
+    grab the cities for matching later
+    '''
     conn = get_conn()
     try:
         cur = conn.cursor()
@@ -230,7 +242,10 @@ def list_attractions(payload) -> list:
 
 
 def get_attractions_with_tags(city: str | None = None) -> list[dict]:
-    conn = get_conn()
+    '''
+    get the attractions with their interest tags, 
+    first we filter by city, as it's a more selective filter
+    '''
     try:
         cur = conn.cursor()
 
@@ -275,6 +290,7 @@ def get_attractions_with_tags(city: str | None = None) -> list[dict]:
         
 def save_recommendations(username: str, recommendations: list[dict]) -> dict:
     '''
+    save the outputted rec list for user
     '''
     if not username:
         raise ValueError("No username")
@@ -302,8 +318,11 @@ def save_recommendations(username: str, recommendations: list[dict]) -> dict:
     finally:
         cur.close()
         conn.close()
-        
+
 def list_saved_recommendations(username: str) -> list[dict]:
+    '''
+    List saved recommendations for a user
+    '''
     if not username:
         return []
 

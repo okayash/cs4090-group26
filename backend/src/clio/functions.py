@@ -16,6 +16,9 @@ from .data_access import (
 
 
 def validate_user_credentials(username: str, password: str) -> bool:
+    '''
+    check if user/pass in db
+    '''
     if not username or not password:
         return False
 
@@ -25,6 +28,11 @@ def validate_user_credentials(username: str, password: str) -> bool:
         return False
 
 def create_user(payload) -> dict:
+    '''
+    create a new user use case
+    required username/fname/lname/pwd
+    just return suc/fail + necessary info
+    '''
     required = ["username", "first_name", "last_name", "password"]
     missing = [k for k in required if not payload.get(k)]
     if missing:
@@ -73,7 +81,7 @@ def delete_user(payload) -> dict:
 	
 def get_attraction_details(payload) -> dict:
     '''
-    get attraction details - use case 1
+    get attraction details
     '''
     if not payload:
         return {"success": False, "attraction": None, "error": "error"}
@@ -154,7 +162,7 @@ def generate_recommendations(payload) -> dict:
 
 def list_interests() -> dict:
     '''
-    Service: returns [{'interest_id': 1, 'name': 'Art'}, ...]
+    obtain user interests from db for scoring later
     '''
     try:
         interests = db_list_interests()
@@ -165,7 +173,7 @@ def list_interests() -> dict:
 
 def get_user_interest_names(username: str) -> dict:
     '''
-    Service: returns ['Art', 'History', ...]
+    return interests of a user for scoring later
     '''
     if not username:
         return {"success": False, "interest_names": [], "error": "Missing username"}
@@ -177,6 +185,9 @@ def get_user_interest_names(username: str) -> dict:
         return {"success": False, "interest_names": [], "error": str(e)}
 
 def save_recommendations(payload) -> dict:
+    '''
+    save recs for user
+    '''
     username = payload.get("username")
     recs = payload.get("recommendations")
 
@@ -193,6 +204,9 @@ def save_recommendations(payload) -> dict:
 
     
 def list_saved_recommendations(payload) -> dict:
+    '''
+    list saved recommendations for a user
+    '''
     username = payload.get("username")
     if not username:
         return {"success": False, "recommendations": [], "error": "Missing username"}
