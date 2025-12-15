@@ -5,6 +5,9 @@ import pandas as pd
 from .db import get_conn  
 
 def get_tag_rules() -> dict[str, list[str]]:
+    '''
+    some key words associated with the names of museums and attractions
+    '''
     return {
         "art": ["painting", "sculpture", "gallery", "art", "arts"],
         "history": ["history", "historic", "heritage", "memorial", "war", "ancient", "museum of the city"],
@@ -18,6 +21,9 @@ def get_tag_rules() -> dict[str, list[str]]:
 
 
 def assign_tags(text: str, rules: dict[str, list[str]]) -> list[str]:
+    '''
+    assign interests tags based on name
+    '''
     t = (text or "").lower()
     found: list[str] = []
     for tag, kws in rules.items():
@@ -27,6 +33,9 @@ def assign_tags(text: str, rules: dict[str, list[str]]) -> list[str]:
 
 
 def extract_state(address: str) -> str | None:
+    '''
+    return the state within the address
+    '''
     if not isinstance(address, str):
         return None
     m = re.search(r",\s*([A-Z]{2})\s*\d{5}(?:-\d{4})?\b", address)
@@ -35,6 +44,7 @@ def extract_state(address: str) -> str | None:
 
 def extract_city(address: str) -> str | None:
     '''
+    return the city within the address
     '''
     if not isinstance(address, str):
         return None
@@ -44,6 +54,9 @@ def extract_city(address: str) -> str | None:
     return None
 
 def _print_db_info(cur) -> None:
+    '''
+    print database info for debugging
+    '''
     cur.execute("SELECT DATABASE()")
     db_name = cur.fetchone()[0]
     print("DB connected to:", db_name)
@@ -53,7 +66,11 @@ def _print_db_info(cur) -> None:
     print("Attractions BEFORE:", before)
 
 
-def _safe_fetchone(cur, err_msg: str):
+def _safe_fetchone(cur, err_msg: str) -> tuple:
+    '''
+    fetch one row from cursor, raise error if none
+    Returns the fetched row tuple.
+    '''
     row = cur.fetchone()
     if not row:
         raise RuntimeError(err_msg)
@@ -64,6 +81,10 @@ def seed_from_csv(
     seed_tags: bool = True,
     limit: int | None = None,
 ) -> None:
+    '''
+    load the tripadvisor museum dataset
+    
+    '''
     here = os.path.dirname(os.path.abspath(__file__))
     csv_path = csv_filename if os.path.isabs(csv_filename) else os.path.join(here, csv_filename)
 

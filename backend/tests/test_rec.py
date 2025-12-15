@@ -5,7 +5,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import clio.functions as clio
 
-def test_generate_recommendations_happy_path(monkeypatch):
+def test_generate_recommendations(monkeypatch):
+    '''
+    test successful recommendations when user is signed in and has multiple interests
+    '''
     monkeypatch.setattr(clio, "db_get_user_interest_names", lambda username: ["art", "history"])
     monkeypatch.setattr(clio, "db_get_attractions_with_tags", lambda city=None: [
         {"name": "Art Museum", "tags": ["art"], "rating": 4.0, "price": 1.0, "city": "X", "type": "museum"},
@@ -16,6 +19,10 @@ def test_generate_recommendations_happy_path(monkeypatch):
     assert res["success"] is True
     assert len(res["recommendations"]) > 0
 
+
 def test_generate_recommendations_missing_username():
+    '''
+    test for non-signed in users
+    '''
     res = clio.generate_recommendations({"city": "Liberty"})
     assert res["success"] is False
