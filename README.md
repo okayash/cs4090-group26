@@ -15,6 +15,5 @@ To run in MacOS:
 
 ``streamlit run backend/src/clio/app.py``
 
-- Currently, it only has attraction data for New York City and Washington D.C.
 
 mysql -u root -p clio < backend/db/schema/tables.sql;
