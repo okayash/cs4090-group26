@@ -6,11 +6,18 @@ recommendation logic
 
 
 def _score_attraction(user_interests: list[str], attraction_tags: list[str]) -> int:
+    '''
+    return the count of user+attraction tag overlap
+    '''
     ui = set(x.strip().lower() for x in user_interests if x)
     at = set(x.strip().lower() for x in attraction_tags if x)
     return len(ui & at)
 
 def recommend(attractions: list[dict], interests: list[str], top_k: int = 10) -> list[dict]:
+    '''
+    recommend attractions
+    more overlap = better
+    '''
     interests_set = {i.strip().lower() for i in (interests or []) if str(i).strip()}
 
     scored = []
