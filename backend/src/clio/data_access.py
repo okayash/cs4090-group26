@@ -72,9 +72,70 @@ def delete_user(payload) -> dict:
 	finally:
 		cur.close()
 		conn.close()
+
+def list_interests() -> list[dict]:
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT interest_id, name FROM Interests ORDER BY name")
+        return [{"interest_id": r[0], "name": r[1]} for r in cur.fetchall()]
+    finally:
+        cur.close()
+        conn.close()
+
+def update_user_interests(payload) -> dict:
+    '''
+
+    '''
+    username = payload.get("username")
+    interests = payload.get("interests")
+
+    if not username:
+        raise ValueError("Missing username")
+    if not isinstance(interests, list):
+        raise ValueError("Interests must be a list of interest_ids")
+
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM User_Interests_Map WHERE username = %s", (username,))
+
+        for interest_id in interests:
+            cur.execute(
+                "INSERT INTO User_Interests_Map (username, interest_id) VALUES (%s, %s)",
+                (username, int(interest_id)),
+            )
+
+        conn.commit()
+        return {"updated": len(interests)}
+    finally:
+        cur.close()
+        conn.close()
+
+
+def get_user_interest_names(username: str) -> list[str]:
+    '''
+
+    '''
+    if not username:
+        return []
+
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        sql = '''
+            SELECT i.name
+            FROM User_Interests_Map uim
+            JOIN Interests i ON i.interest_id = uim.interest_id
+            WHERE uim.username = %s
+            ORDER BY i.name
+        '''
+        cur.execute(sql, (username,))
+        return [r[0] for r in cur.fetchall()]
+    finally:
+        cur.close()
+        conn.close()
           
-
-
 		
 def get_attraction_details(payload) -> dict:
     attraction_name = payload.get("name")
@@ -168,7 +229,6 @@ def list_attractions(payload) -> list:
         conn.close()
 
 
-
 def get_attractions_with_tags(city: str | None = None) -> list[dict]:
     conn = get_conn()
     try:
@@ -185,117 +245,6 @@ def get_attractions_with_tags(city: str | None = None) -> list[dict]:
         params = []
 
         if city:
-            city = city.replace(",", " ").replace(".", " ")
-            city = " ".join(city.split())
-            sql += " WHERE LOWER(a.city) LIKE LOWER(%s) "
-            params.append(f"%{city}%")
-
-        sql += " GROUP BY a.id, a.name, a.`type`, a.city, a.price, a.rating "
-
-        cur.execute(sql, tuple(params))
-        rows = cur.fetchall()
-
-        out = []
-        for (id_, name, typ, city_val, price, rating, tags) in rows:
-            tag_list = [x.strip().lower() for x in tags.split(",")] if tags else []
-            out.append({
-                "id": id_,
-                "name": name,
-                "type": typ,
-                "city": city_val,
-                "price": price,
-                "rating": rating,
-                "tags": tag_list
-            })
-        return out
-    finally:
-        cur.close()
-        conn.close()
-
-def list_interests() -> list[dict]:
-    conn = get_conn()
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT interest_id, name FROM Interests ORDER BY name")
-        return [{"interest_id": r[0], "name": r[1]} for r in cur.fetchall()]
-    finally:
-        cur.close()
-        conn.close()
-
-def update_user_interests(payload) -> dict:
-    '''
-    Replace all interests for a user with the provided list of interest_ids.
-    payload = {"username": str, "interests": list[int]}
-    '''
-    username = payload.get("username")
-    interests = payload.get("interests")
-
-    if not username:
-        raise ValueError("Missing username")
-    if not isinstance(interests, list):
-        raise ValueError("Interests must be a list of interest_ids")
-
-    conn = get_conn()
-    try:
-        cur = conn.cursor()
-
-        # Clear existing interests
-        cur.execute("DELETE FROM User_Interests_Map WHERE username = %s", (username,))
-
-        # Insert new interests
-        for interest_id in interests:
-            cur.execute(
-                "INSERT INTO User_Interests_Map (username, interest_id) VALUES (%s, %s)",
-                (username, int(interest_id)),
-            )
-
-        conn.commit()
-        return {"updated": len(interests)}
-    finally:
-        cur.close()
-        conn.close()
-
-
-def get_user_interest_names(username: str) -> list[str]:
-    '''
-    Return the interest names for the given user.
-    '''
-    if not username:
-        return []
-
-    conn = get_conn()
-    try:
-        cur = conn.cursor()
-        sql = '''
-            SELECT i.name
-            FROM User_Interests_Map uim
-            JOIN Interests i ON i.interest_id = uim.interest_id
-            WHERE uim.username = %s
-            ORDER BY i.name
-        '''
-        cur.execute(sql, (username,))
-        return [r[0] for r in cur.fetchall()]
-    finally:
-        cur.close()
-        conn.close()
-
-def get_attractions_with_tags(city: str | None = None) -> list[dict]:
-    conn = get_conn()
-    try:
-        cur = conn.cursor()
-
-        sql = '''
-            SELECT 
-                a.id, a.name, a.`type`, a.city, a.price, a.rating,
-                GROUP_CONCAT(DISTINCT t.tag_name ORDER BY t.tag_name SEPARATOR ',') AS tags
-            FROM Attractions a
-            LEFT JOIN Attraction_Tags_Map atm ON atm.attraction_name = a.name
-            LEFT JOIN Attraction_Tags t ON t.tag_id = atm.tag_id
-        '''
-        params = []
-
-        if city:
-            # normalize user input a bit
             city = city.replace(",", " ").replace(".", " ")
             city = " ".join(city.split())
 
@@ -326,11 +275,9 @@ def get_attractions_with_tags(city: str | None = None) -> list[dict]:
         
 def save_recommendations(username: str, recommendations: list[dict]) -> dict:
     '''
-    Save recommendation rows for a user.
-    recommendations = list of dicts that contain at least: name + match_reason (optional)
     '''
     if not username:
-        raise ValueError("Missing username")
+        raise ValueError("No username")
 
     conn = get_conn()
     try:
@@ -355,6 +302,7 @@ def save_recommendations(username: str, recommendations: list[dict]) -> dict:
     finally:
         cur.close()
         conn.close()
+        
 def list_saved_recommendations(username: str) -> list[dict]:
     if not username:
         return []
