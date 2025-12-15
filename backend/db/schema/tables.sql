@@ -1,4 +1,15 @@
+DROP TABLE IF EXISTS Recommended_Attractions;
+DROP TABLE IF EXISTS Recommendation_Result;
+DROP TABLE IF EXISTS Recommendations;
+DROP TABLE IF EXISTS Attraction_Tags_Map;
+DROP TABLE IF EXISTS Attraction_Tags;
+DROP TABLE IF EXISTS User_Visit;
+DROP TABLE IF EXISTS User_Interests_Map;
+DROP TABLE IF EXISTS Attractions;
+DROP TABLE IF EXISTS Interests;
 DROP TABLE IF EXISTS User;
+
+
 -- USER DETAILS --
 CREATE TABLE User (
     username VARCHAR(50) NOT NULL PRIMARY KEY,

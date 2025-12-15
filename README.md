@@ -13,6 +13,8 @@ To run in MacOS:
 
 ``pip install -r requirements.txt``
 
-``streamlit run backend/src/app.py``
+``streamlit run backend/src/clio/app.py``
 
 - Currently, it only has attraction data for New York City and Washington D.C.
+
+mysql -u root -p clio < backend/db/schema/tables.sql;
