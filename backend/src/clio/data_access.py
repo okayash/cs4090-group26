@@ -246,6 +246,7 @@ def get_attractions_with_tags(city: str | None = None) -> list[dict]:
     get the attractions with their interest tags, 
     first we filter by city, as it's a more selective filter
     '''
+    conn = get_conn()
     try:
         cur = conn.cursor()
 
