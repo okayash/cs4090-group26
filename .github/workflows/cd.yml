@@ -1,0 +1,17 @@
+name: Deploy to Streamlit
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Notify deployment
+      run: |
+        echo "https://cs4090-clio.streamlit.app"
+        
