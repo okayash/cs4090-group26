@@ -13,7 +13,7 @@ To run in MacOS:
 
 ``pip install -r requirements.txt``
 
-``streamlit run backend/src/clio/app.py``
+``streamlit run main.py``
 
 
-mysql -u root -p clio < backend/db/schema/tables.sql;
+``PYTHONPATH=backend/src pytest backend/tests``

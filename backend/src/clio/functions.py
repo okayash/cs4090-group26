@@ -1,5 +1,6 @@
-from search import recommend
-from data_access import (
+from .search import recommend
+
+from .data_access import (
     validate_user_credentials as db_validate_user_credentials,
     create_user as db_create_user,
     delete_user as db_delete_user,
@@ -9,7 +10,8 @@ from data_access import (
     get_user_interest_names as db_get_user_interest_names,
     get_attractions_with_tags as db_get_attractions_with_tags, 
     list_interests as db_list_interests,
-    save_recommendations as db_save_recommendations
+    save_recommendations as db_save_recommendations,
+    list_saved_recommendations as db_list_saved_recommendations
 )
 
 
@@ -225,3 +227,13 @@ def save_recommendations(payload) -> dict:
         return {"success": False, "error": str(e)}
 
     
+def list_saved_recommendations(payload) -> dict:
+    username = payload.get("username")
+    if not username:
+        return {"success": False, "recommendations": [], "error": "Missing username"}
+
+    try:
+        recs = db_list_saved_recommendations(username)
+        return {"success": True, "recommendations": recs, "error": None}
+    except Exception as e:
+        return {"success": False, "recommendations": [], "error": str(e)}  
