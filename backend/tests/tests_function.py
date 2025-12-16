@@ -1,5 +1,8 @@
 import clio.functions as clio
 
+def fake_db_login(username, password):
+    return True
+
 
 def test_create_user_missing_fields():
     '''
@@ -15,3 +18,4 @@ def test_update_user_interests_rejects_bad_payload():
     '''
     res = clio.update_user_interests({"username": "", "interests": []})
     assert res["success"] is False
+

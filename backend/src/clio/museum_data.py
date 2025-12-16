@@ -4,6 +4,9 @@ import pandas as pd
 
 from .db import get_conn  
 
+conn = get_conn()
+cur = conn.cursor()
+
 def get_tag_rules() -> dict[str, list[str]]:
     '''
     some key words associated with the names of museums and attractions
@@ -83,7 +86,7 @@ def seed_from_csv(
 ) -> None:
     '''
     load the tripadvisor museum dataset
-    
+
     '''
     here = os.path.dirname(os.path.abspath(__file__))
     csv_path = csv_filename if os.path.isabs(csv_filename) else os.path.join(here, csv_filename)
@@ -111,8 +114,6 @@ def seed_from_csv(
 
     rules = get_tag_rules()
 
-    conn = get_conn()
-    cur = conn.cursor()
 
     try:
         _print_db_info(cur)

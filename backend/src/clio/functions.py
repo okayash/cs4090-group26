@@ -60,24 +60,6 @@ def create_user(payload) -> dict:
         return {"success": True, "user_id": created_id, "error": None}
     except Exception as e:
         return {"success": False, "user_id": None, "error": str(e)}
-
-
-def delete_user(payload) -> dict:
-	'''
-	delete user - use case 11
-	'''
-	if not payload:
-		return {"success": False, "error": "error"}
-
-	username = payload.get("username")
-	if not username:
-		return {"success": False, "error": "Please provide username to delete."}
-
-	try:
-		result = db_delete_user({"username": username})
-		return {"success": True, "result": result, "error": None}
-	except Exception as e:
-		return {"success": False, "error": str(e)}
 	
 def get_attraction_details(payload) -> dict:
     '''
